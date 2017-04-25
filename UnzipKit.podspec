@@ -12,9 +12,9 @@ Pod::Spec.new do |s|
   s.requires_arc = 'Source/**/*'
   s.public_header_files  = "Source/UnzipKit.h",
                            "Source/UZKArchive.h",
-                           "Source/UZKFileInfo.h"
-  s.private_header_files = "Source/UZKFileInfo_Private.h",
+                           "Source/UZKFileInfo.h",
                            "Lib/**/*.h"
+  s.private_header_files = "Source/UZKFileInfo_Private.h"
   s.source_files         = "Source/**/*.{m,h}",
                            "Lib/**/*.{c,h}"
   s.exclude_files        = 'Resources/**/Info.plist'
