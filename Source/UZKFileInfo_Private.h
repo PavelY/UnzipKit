@@ -4,7 +4,8 @@
 //
 //
 
-@import Foundation;
+//@import Foundation;
+#import <Foundation/Foundation.h>
 
 #import "unzip.h"
 

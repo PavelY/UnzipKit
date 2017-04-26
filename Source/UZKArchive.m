@@ -7,6 +7,7 @@
 #import "UZKArchive.h"
 
 #import "zip.h"
+#import "ioapi_mem.h"
 
 #import "UZKFileInfo.h"
 #import "UZKFileInfo_Private.h"
@@ -19,7 +20,7 @@ NSString *UZKErrorDomain = @"UZKErrorDomain";
 
 
 typedef NS_ENUM(NSUInteger, UZKFileMode) {
-    UZKFileModeUnassigned = -1,
+    UZKFileModeUnassigned = (NSUInteger)-1,
     UZKFileModeUnzip = 0,
     UZKFileModeCreate,
     UZKFileModeAppend
@@ -53,6 +54,8 @@ NS_DESIGNATED_INITIALIZER
 
 @property (assign) BOOL commentRetrieved;
 
+@property (nonatomic, strong) NSData *archiveData;
+
 @end
 
 
@@ -84,7 +87,41 @@ NS_DESIGNATED_INITIALIZER
     return [[UZKArchive alloc] initWithURL:fileURL password:password error:nil];
 }
 
-
++ (BOOL)dataIsAZip:(NSData*)data
+{
+    NSData *fileData = [data subdataWithRange:NSMakeRange(0, 4)];
+    
+    if (fileData.length < 4) {
+        return NO;
+    }
+    
+    const unsigned char *dataBytes = (const unsigned char *)fileData.bytes;
+    
+    // First two bytes must equal 'PK'
+    if (dataBytes[0] != 0x50 || dataBytes[1] != 0x4b) {
+        return NO;
+    }
+    
+    // Check for standard Zip
+    if (dataBytes[2] == 0x03 &&
+        dataBytes[3] == 0x04) {
+        return YES;
+    }
+    
+    // Check for empty Zip
+    if (dataBytes[2] == 0x05 &&
+        dataBytes[3] == 0x06) {
+        return YES;
+    }
+    
+    // Check for spanning Zip
+    if (dataBytes[2] == 0x07 &&
+        dataBytes[3] == 0x08) {
+        return YES;
+    }
+    
+    return NO;
+}
 
 #pragma mark - Initializers
 
@@ -102,7 +139,8 @@ NS_DESIGNATED_INITIALIZER
 
 - (instancetype)init {
     NSAssert(NO, @"Do not use -init. Use one of the -initWithPath or -initWithURL variants", nil);
-    @throw nil;
+    //@throw nil;
+    return nil;
 }
 
 - (instancetype)initWithPath:(NSString *)filePath error:(NSError * __autoreleasing*)error
@@ -156,6 +194,18 @@ NS_DESIGNATED_INITIALIZER
         _threadLock = [[NSObject alloc] init];
         
         _commentRetrieved = NO;
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithData:(NSData*)data error:(NSError**)error
+{
+    self = [self initWithPath:@"" error:error];
+    
+    if (!*error)
+    {
+        self.archiveData = data;
     }
     
     return self;
@@ -256,7 +306,7 @@ NS_DESIGNATED_INITIALIZER
             return NO;
         }
         
-        const unsigned char *dataBytes = fileData.bytes;
+        const unsigned char *dataBytes = (const unsigned char *)fileData.bytes;
 
         // First two bytes must equal 'PK'
         if (dataBytes[0] != 0x50 || dataBytes[1] != 0x4b) {
@@ -320,7 +370,7 @@ NS_DESIGNATED_INITIALIZER
     }
     
     NSError *checkExistsError = nil;
-    if (![self.fileURL checkResourceIsReachableAndReturnError:&checkExistsError]) {
+    if (![self.fileURL checkResourceIsReachableAndReturnError:&checkExistsError] && !self.archiveData) {
         return @[];
     }
     
@@ -335,18 +385,18 @@ NS_DESIGNATED_INITIALIZER
         int err = unzGetGlobalInfo(self.unzFile, &gi);
         if (err != UNZ_OK) {
             [self assignError:innerError code:UZKErrorCodeArchiveNotFound
-                       detail:[NSString localizedStringWithFormat:NSLocalizedStringFromTableInBundle(@"Error getting global info (%d)", @"UnzipKit", _resources, @"Detailed error string"),
+                       detail:[NSString localizedStringWithFormat:@"Error getting global info (%d)",
                                err]];
             return;
         }
         
         NSUInteger fileCount = gi.number_entry;
-
+        
         err = unzGoToFirstFile(self.unzFile);
         
         if (err != UNZ_OK) {
             [self assignError:innerError code:UZKErrorCodeFileNavigationError
-                       detail:[NSString localizedStringWithFormat:NSLocalizedStringFromTableInBundle(@"Error going to first file in archive (%d)", @"UnzipKit", _resources, @"Detailed error string"),
+                       detail:[NSString localizedStringWithFormat:@"Error going to first file in archive (%d)",
                                err]];
             return;
         }
@@ -366,7 +416,7 @@ NS_DESIGNATED_INITIALIZER
             
             if (err != UNZ_OK) {
                 [self assignError:innerError code:UZKErrorCodeFileNavigationError
-                           detail:[NSString localizedStringWithFormat:NSLocalizedStringFromTableInBundle(@"Error navigating to next file (%d)", @"UnzipKit", _resources, @"Detailed error string"),
+                           detail:[NSString localizedStringWithFormat:@"Error navigating to next file (%d)",
                                    err]];
                 return;
             }
@@ -823,7 +873,7 @@ compressionMethod:(UZKCompressionMethod)method
         progress(0);
     }
 
-    uLong calculatedCRC = crc32(0, data.bytes, (uInt)data.length);
+    uLong calculatedCRC = crc32(0, (const Bytef*)data.bytes, (uInt)data.length);
     
     BOOL success = [self performWriteAction:^int(uLong *crc, NSError * __autoreleasing*innerError) {
         NSAssert(crc, @"No CRC reference passed", nil);
@@ -965,7 +1015,7 @@ compressionMethod:(UZKCompressionMethod)method
             NSAssert(crc, @"No CRC reference passed", nil);
             
             uLong oldCRC = *crc;
-            *crc = crc32(oldCRC, bytes, (uInt)length);;
+            *crc = crc32(oldCRC, (const Bytef*)bytes, (uInt)length);;
             
             return YES;
         }, innerError);
@@ -1507,14 +1557,26 @@ compressionMethod:(UZKCompressionMethod)method
     
     switch (mode) {
         case UZKFileModeUnzip: {
-            if (![fm fileExistsAtPath:zipFile]) {
+            if (![fm fileExistsAtPath:zipFile] && !self.archiveData) {
                 [self assignError:error code:UZKErrorCodeArchiveNotFound
                            detail:[NSString localizedStringWithFormat:NSLocalizedStringFromTableInBundle(@"No file found at path %@", @"UnzipKit", _resources, @"Detailed error string"),
                                    zipFile]];
                 return NO;
             }
             
-            self.unzFile = unzOpen(self.filename.UTF8String);
+            if (self.archiveData) {
+                zlib_filefunc_def filefunc32 = {0};
+                ourmemory_t unzmem = {0};
+                
+                unzmem.size = (int32_t)self.archiveData.length;
+                unzmem.base = (char*)self.archiveData.bytes;
+                
+                fill_memory_filefunc(&filefunc32, &unzmem);
+                self.unzFile = unzOpen2("__unused__", &filefunc32);
+            } else {
+                self.unzFile = unzOpen(self.filename.UTF8String);
+            }
+            
             if (self.unzFile == NULL) {
                 [self assignError:error code:UZKErrorCodeBadZipFile
                            detail:[NSString localizedStringWithFormat:NSLocalizedStringFromTableInBundle(@"Error opening zip file %@", @"UnzipKit", _resources, @"Detailed error string"),
@@ -1554,7 +1616,7 @@ compressionMethod:(UZKCompressionMethod)method
             break;
         }
         case UZKFileModeCreate:
-        case UZKFileModeAppend:
+        case UZKFileModeAppend: {
             if (![fm fileExistsAtPath:zipFile]) {
                 NSError *createFileError = nil;
                 
@@ -1586,6 +1648,7 @@ compressionMethod:(UZKCompressionMethod)method
                 return NO;
             }
             break;
+        }
             
         case UZKFileModeUnassigned:
             NSAssert(NO, @"Cannot call -openFile:inMode:withPassword:error: with a mode of UZKFileModeUnassigned (%lu)", (unsigned long)mode);

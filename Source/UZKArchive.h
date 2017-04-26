@@ -226,6 +226,9 @@ typedef NS_ENUM(NSInteger, UZKErrorCode) {
  */
 - (nullable instancetype)initWithURL:(NSURL *)fileURL password:(nullable NSString *)password error:(NSError **)error;
 
+/** 
+ */
+- (instancetype)initWithData:(NSData*)data error:(NSError**)error;
 
 
 #pragma mark - Read Methods
@@ -239,6 +242,10 @@ typedef NS_ENUM(NSInteger, UZKErrorCode) {
  *  @return YES if the file exists and contains a signature indicating it is a Zip file
  */
 + (BOOL)pathIsAZip:(NSString *)filePath;
+
+/** 
+ */
++ (BOOL)dataIsAZip:(NSData*)data;
 
 /**
  *  Determines whether a file is a Zip file by reading the header
