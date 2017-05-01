@@ -89,6 +89,9 @@
 		96FFB40F1E1EC71800CCA47B /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 96EA65C81A40C44300685B6D /* unzip.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		96FFB4101E1EC71800CCA47B /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = 96EA65CA1A40C44300685B6D /* zip.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		96FFB4111E1EC72F00CCA47B /* NSURL+UnzipKitExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 965CF0081D241A8F00C80A88 /* NSURL+UnzipKitExtensions.h */; };
+		D99734231EB7B2EA00135285 /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = D99734201EB7B2EA00135285 /* crypt.c */; };
+		D99734241EB7B2EA00135285 /* ioapi_mem.c in Sources */ = {isa = PBXBuildFile; fileRef = D99734211EB7B2EA00135285 /* ioapi_mem.c */; };
+		D99734251EB7B2EA00135285 /* ioapi_mem.h in Headers */ = {isa = PBXBuildFile; fileRef = D99734221EB7B2EA00135285 /* ioapi_mem.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -161,6 +164,9 @@
 		96FCC8401B306CDD00726AC7 /* UZKArchiveTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UZKArchiveTestCase.m; sourceTree = "<group>"; };
 		96FFB3F41E1EC31000CCA47B /* UnzipKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = UnzipKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		96FFB3FC1E1EC35900CCA47B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		D99734201EB7B2EA00135285 /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crypt.c; sourceTree = "<group>"; };
+		D99734211EB7B2EA00135285 /* ioapi_mem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ioapi_mem.c; sourceTree = "<group>"; };
+		D99734221EB7B2EA00135285 /* ioapi_mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ioapi_mem.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -327,6 +333,9 @@
 		96EA65C21A40C44300685B6D /* MiniZip */ = {
 			isa = PBXGroup;
 			children = (
+				D99734201EB7B2EA00135285 /* crypt.c */,
+				D99734211EB7B2EA00135285 /* ioapi_mem.c */,
+				D99734221EB7B2EA00135285 /* ioapi_mem.h */,
 				96EA66031A435D8200685B6D /* crypt.h */,
 				96EA65C31A40C44300685B6D /* ioapi.c */,
 				96EA65C41A40C44300685B6D /* ioapi.h */,
@@ -364,6 +373,7 @@
 				966A971C1A4A1F2A003597AA /* unzip.h in Headers */,
 				966A971F1A4A2351003597AA /* ioapi.h in Headers */,
 				966A97201A4A2354003597AA /* crypt.h in Headers */,
+				D99734251EB7B2EA00135285 /* ioapi_mem.h in Headers */,
 				966A971E1A4A234C003597AA /* mztools.h in Headers */,
 				966A971D1A4A2348003597AA /* zip.h in Headers */,
 				965CF00A1D241A8F00C80A88 /* NSURL+UnzipKitExtensions.h in Headers */,
@@ -609,8 +619,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D99734241EB7B2EA00135285 /* ioapi_mem.c in Sources */,
 				96EA65BD1A40B2EC00685B6D /* UZKArchive.m in Sources */,
 				96EA66021A40E31900685B6D /* UZKFileInfo.m in Sources */,
+				D99734231EB7B2EA00135285 /* crypt.c in Sources */,
 				96EA65D81A40C44300685B6D /* ioapi.c in Sources */,
 				96EA65DE1A40C44300685B6D /* unzip.c in Sources */,
 				96EA65E11A40C44300685B6D /* zip.c in Sources */,

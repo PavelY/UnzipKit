@@ -1181,8 +1181,8 @@ compressionMethod:(UZKCompressionMethod)method
             // Open destination archive
             
             zip_fileinfo zipInfo;
-            memcpy (&zipInfo.tmz_date, &unzipInfo.tmu_date, sizeof(tm_unz));
-            zipInfo.dosDate = unzipInfo.dosDate;
+//            memcpy (&zipInfo.tmz_date, &unzipInfo.tmu_date, sizeof(tm_unz));
+            zipInfo.dos_date = unzipInfo.dos_date;
             zipInfo.internal_fa = unzipInfo.internal_fa;
             zipInfo.external_fa = unzipInfo.external_fa;
             
@@ -1979,15 +1979,16 @@ compressionMethod:(UZKCompressionMethod)method
 #pragma clang diagnostic pop
 
     zip_fileinfo zi;
-    zi.tmz_date.tm_sec = (uInt)date.second;
-    zi.tmz_date.tm_min = (uInt)date.minute;
-    zi.tmz_date.tm_hour = (uInt)date.hour;
-    zi.tmz_date.tm_mday = (uInt)date.day;
-    zi.tmz_date.tm_mon = (uInt)date.month - 1; // 0-indexed
-    zi.tmz_date.tm_year = (uInt)date.year;
+//    zi.tmz_date.tm_sec = (uInt)date.second;
+//    zi.tmz_date.tm_min = (uInt)date.minute;
+//    zi.tmz_date.tm_hour = (uInt)date.hour;
+//    zi.tmz_date.tm_mday = (uInt)date.day;
+//    zi.tmz_date.tm_mon = (uInt)date.month - 1; // 0-indexed
+//    zi.tmz_date.tm_year = (uInt)date.year;
     zi.internal_fa = 0;
     zi.external_fa = 0;
-    zi.dosDate = 0;
+//    zi.dosDate = 0;
+    zi.dos_date = 0;
     
     return zi;
 }

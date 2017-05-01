@@ -9,7 +9,7 @@
 
 @interface UZKFileInfo ()
 
-@property (readwrite) tm_unz zipTMUDate;
+//@property (readwrite) tm_unz zipTMUDate;
 
 @end
 
@@ -32,7 +32,7 @@
         _filename = filename;
         _uncompressedSize = fileInfo->uncompressed_size;
         _compressedSize = fileInfo->compressed_size;
-        _zipTMUDate = fileInfo->tmu_date;
+        //_zipTMUDate = fileInfo->tmu_date;
         _CRC = fileInfo->crc;
         _isEncryptedWithPassword = (fileInfo->flag & 1) != 0;
         _isDirectory = [filename hasSuffix:@"/"];
@@ -54,7 +54,7 @@
 
 - (NSDate *)timestamp {
     if (!_timestamp) {
-        _timestamp = [self readDate:self.zipTMUDate];
+        //_timestamp = [self readDate:self.zipTMUDate];
     }
     
     return _timestamp;
@@ -88,18 +88,18 @@
     return level;
 }
 
-- (NSDate *)readDate:(tm_unz)date
-{
-    NSDateComponents *components = [[NSDateComponents alloc] init];
-    components.day    = date.tm_mday;
-    components.month  = date.tm_mon + 1;
-    components.year   = date.tm_year;
-    components.hour   = date.tm_hour;
-    components.minute = date.tm_min;
-    components.second = date.tm_sec;
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    
-    return [calendar dateFromComponents:components];
-}
+//- (NSDate *)readDate:(tm_unz)date
+//{
+//    NSDateComponents *components = [[NSDateComponents alloc] init];
+//    components.day    = date.tm_mday;
+//    components.month  = date.tm_mon + 1;
+//    components.year   = date.tm_year;
+//    components.hour   = date.tm_hour;
+//    components.minute = date.tm_min;
+//    components.second = date.tm_sec;
+//    NSCalendar *calendar = [NSCalendar currentCalendar];
+//    
+//    return [calendar dateFromComponents:components];
+//}
 
 @end

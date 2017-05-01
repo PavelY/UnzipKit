@@ -30,14 +30,14 @@
 
 #ifndef IOMEM_BUFFERSIZE
 #  define IOMEM_BUFFERSIZE (UINT16_MAX)
-#endif
+#endif 
 
 voidpf ZCALLBACK fopen_mem_func(voidpf opaque, const char *filename, int mode)
 {
     ourmemory_t *mem = (ourmemory_t *)opaque;
     if (mem == NULL)
         return NULL; /* Mem structure passed in was null */
-
+    
     if (mode & ZLIB_FILEFUNC_MODE_CREATE)
     {
         if (mem->grow)
@@ -128,7 +128,7 @@ long ZCALLBACK fseek_mem_func(voidpf opaque, voidpf stream, uint32_t offset, int
         case ZLIB_FILEFUNC_SEEK_SET:
             new_pos = offset;
             break;
-        default:
+        default: 
             return -1;
     }
 
@@ -153,7 +153,7 @@ int ZCALLBACK ferror_mem_func(voidpf opaque, voidpf stream)
 void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def, ourmemory_t *ourmem)
 {
     pzlib_filefunc_def->zopen_file = fopen_mem_func;
-    //pzlib_filefunc_def->zopendisk_file = fopendisk_mem_func;
+    pzlib_filefunc_def->zopendisk_file = fopendisk_mem_func;
     pzlib_filefunc_def->zread_file = fread_mem_func;
     pzlib_filefunc_def->zwrite_file = fwrite_mem_func;
     pzlib_filefunc_def->ztell_file = ftell_mem_func;
